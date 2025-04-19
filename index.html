@@ -651,6 +651,125 @@
         .highlight-item.with-bg:nth-child(4) .highlight-content {
             background: rgba(0, 0, 0, 0.45); /* 为第四个卡片设置更深的背景 */
         }
+        
+        /* 天气卡片样式 */
+        .weather-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .weather-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            padding: 15px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+            border-top: 4px solid var(--primary);
+        }
+        
+        .weather-card:nth-child(1) {
+            border-color: var(--primary);
+        }
+        
+        .weather-card:nth-child(2) {
+            border-color: var(--accent2);
+        }
+        
+        .weather-card:nth-child(3) {
+            border-color: var(--accent3);
+        }
+        
+        .weather-card:nth-child(4) {
+            border-color: var(--accent1);
+        }
+        
+        .weather-card:nth-child(5) {
+            border-color: var(--secondary);
+        }
+        
+        .weather-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+        }
+        
+        .weather-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .weather-icon {
+            font-size: 2.5rem;
+            margin-right: 10px;
+        }
+        
+        .weather-city {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--dark);
+        }
+        
+        .weather-date {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        
+        .weather-temp {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--accent1);
+        }
+        
+        .weather-desc {
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+        
+        .weather-detail {
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 10px;
+        }
+        
+        .weather-tip {
+            font-size: 0.85rem;
+            background: rgba(0,0,0,0.05);
+            padding: 8px 10px;
+            border-radius: 5px;
+            color: #666;
+            line-height: 1.4;
+        }
+        
+        @media (max-width: 768px) {
+            .weather-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .weather-icon {
+                font-size: 2rem;
+            }
+            
+            .weather-city {
+                font-size: 1.2rem;
+            }
+            
+            .weather-temp {
+                font-size: 1.3rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .weather-cards {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -713,6 +832,71 @@
             <p>预算参考：人均 <span class="price">4000-5000元</span>（含机票、租车、住宿、餐饮、门票）</p>
         </div>
         
+        <div class="overview-card">
+            <h2>天气与气温概况</h2>
+            <div class="weather-cards">
+                <div class="weather-card">
+                    <div class="weather-header">
+                        <div class="weather-icon">🌥️</div>
+                        <div class="weather-city">大连</div>
+                    </div>
+                    <div class="weather-date">4月30日</div>
+                    <div class="weather-temp">8℃~16℃</div>
+                    <div class="weather-desc">阴转多云，局部有零星小雨</div>
+                    <div class="weather-detail">南风3-4级，沿海风力可达5级</div>
+                    <div class="weather-tip">春季海风较强，昼夜温差约8℃，午间体感较舒适，早晚偏凉</div>
+                </div>
+                
+                <div class="weather-card">
+                    <div class="weather-header">
+                        <div class="weather-icon">🌧️</div>
+                        <div class="weather-city">延吉</div>
+                    </div>
+                    <div class="weather-date">5月1日</div>
+                    <div class="weather-temp">4℃~14℃</div>
+                    <div class="weather-desc">小雨转多云，局部山区可能有雨夹雪</div>
+                    <div class="weather-detail">西北风3-4级，高海拔地区气温低至2℃</div>
+                    <div class="weather-tip">典型内陆山地气候，山区风大，需注意防风保暖</div>
+                </div>
+                
+                <div class="weather-card">
+                    <div class="weather-header">
+                        <div class="weather-icon">🌦️</div>
+                        <div class="weather-city">图们</div>
+                    </div>
+                    <div class="weather-date">5月1日下午-2日上午</div>
+                    <div class="weather-temp">0℃~12℃</div>
+                    <div class="weather-desc">多云转小雨，边境地区能见度受影响</div>
+                    <div class="weather-detail">风力3-4级，图们江沿岸体感温度更低</div>
+                    <div class="weather-tip">中朝边境温差显著，江边风大潮湿，需防感冒</div>
+                </div>
+                
+                <div class="weather-card">
+                    <div class="weather-header">
+                        <div class="weather-icon">❄️</div>
+                        <div class="weather-city">珲春</div>
+                    </div>
+                    <div class="weather-date">5月1日下午-2日中午</div>
+                    <div class="weather-temp">0℃~14℃</div>
+                    <div class="weather-desc">雨转雨夹雪，防川景区可能有短时暴雪</div>
+                    <div class="weather-detail">西北风4-5级，高海拔区域气温骤降至-2℃</div>
+                    <div class="weather-tip">三国交界地带气候复杂，需警惕极端天气</div>
+                </div>
+                
+                <div class="weather-card">
+                    <div class="weather-header">
+                        <div class="weather-icon">☀️</div>
+                        <div class="weather-city">哈尔滨</div>
+                    </div>
+                    <div class="weather-date">5月2日傍晚-3日</div>
+                    <div class="weather-temp">6℃~18℃</div>
+                    <div class="weather-desc">多云转晴，市区景点偶有阵雨</div>
+                    <div class="weather-detail">西南风3-4级，松花江沿岸风力增强至5级</div>
+                    <div class="weather-tip">城市热岛效应明显，市区与太阳岛景区温差约5℃</div>
+                </div>
+            </div>
+        </div>
+        
         <h2>行程概览</h2>
         <div class="timeline">
             <div class="day-card">
@@ -722,16 +906,18 @@
                 </div>
                 <div class="day-content">
                     <div class="itinerary-item">
-                        <span class="itinerary-time">08:00-13:30</span>
-                        <p>南航 CZ6234 飞往大连</p>
+                        <span class="itinerary-time">上午</span>
+                        <p>11:30 落地大连周水子机场</p>
+                        <p>机场/市区午餐（推荐：海菜包子、大连老菜）</p>
                     </div>
                     <div class="itinerary-item">
                         <span class="itinerary-time">下午</span>
-                        <p>俄罗斯风情街 → 星海广场</p>
+                        <p>市区游览（建议路线：星海广场→滨海路徒步→燕窝岭公园→渔人码头）</p>
+                        <p>傍晚老虎滩看日落</p>
                     </div>
                     <div class="itinerary-item">
                         <span class="itinerary-time">晚上</span>
-                        <p>火车头不老饭庄品尝东北美食</p>
+                        <p>住大连市区（推荐中山广场/青泥洼桥附近）</p>
                     </div>
                 </div>
             </div>
@@ -744,19 +930,18 @@
                 <div class="day-content">
                     <div class="itinerary-item">
                         <span class="itinerary-time">上午</span>
-                        <p>冰山慧谷工业遗址探秘</p>
-                    </div>
-                    <div class="itinerary-item">
-                        <span class="itinerary-time">16:26-次日12:38</span>
-                        <p>K7333次列车前往延吉</p>
+                        <p>继续大连游览：俄罗斯风情街→中山广场历史建筑→西岗市场早餐</p>
+                        <p>12点前退房</p>
                     </div>
                     <div class="itinerary-item">
                         <span class="itinerary-time">下午</span>
-                        <p>延边大学网红墙 → 民俗园</p>
+                        <p>13:00-17:00 市区自由活动或补充游览（东港商务区、威尼斯水城）</p>
+                        <p>17:30 大连站乘坐火车(约16:30出发的高铁最佳)</p>
                     </div>
                     <div class="itinerary-item">
                         <span class="itinerary-time">晚上</span>
-                        <p>全州拌饭馆 → 大学城夜市</p>
+                        <p>20:20 到达长春站，站内换乘高铁G8113次</p>
+                        <p>21:15 长春站→08:52 延吉西站（夜宿高铁）</p>
                     </div>
                 </div>
             </div>
