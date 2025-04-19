@@ -54,16 +54,28 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-image: url('https://images.unsplash.com/photo-1547706276-da514c3f4ad6?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-image: url('images/head.jpg');
             background-size: cover;
             background-position: center;
-            opacity: 0.2;
+            opacity: 0.6;
             z-index: 0;
         }
         
-        .header h1, .header p {
+        .header::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.2);  /* 非常淡的黑色蒙版，只为提高文字可读性 */
+            z-index: 0;
+        }
+        
+        .header h1, .header p, .route-map-container {
             position: relative;
             z-index: 1;
+            text-shadow: none; /* 移除文字投影 */
         }
         
         .header h1 {
@@ -149,9 +161,9 @@
         
         .highlights {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin: 20px 0;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* 进一步增加最小宽度 */
+            gap: 30px; /* 加大间距 */
+            margin: 30px 0; /* 增加上下边距 */
         }
         
         .highlight-item {
@@ -159,11 +171,82 @@
             padding: 15px;
             border-radius: 8px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .highlight-item.with-bg {
+            position: relative;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 220px; /* 大幅增加最小高度 */
+            height: 100%;
+            background-color: #f0f0f0;
+            border-radius: 12px; /* 增大圆角 */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* 加强阴影效果 */
+        }
+        
+        .highlight-bg-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.8;
+            transition: opacity 0.3s, transform 0.3s;
+            z-index: 0;
+            border-radius: 12px; /* 匹配卡片圆角 */
+        }
+        
+        .highlight-item.with-bg:hover .highlight-bg-img {
+            opacity: 0.95;
+            transform: scale(1.05);
+        }
+        
+        .highlight-content {
+            position: relative;
+            z-index: 2;
+            padding: 20px; /* 增加内边距 */
+            text-align: center;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px; /* 匹配卡片圆角 */
+        }
+        
+        .highlight-item.border-bg {
+            display: none;
+        }
+        
+        .highlight-item.border-bg::before {
+            display: none;
         }
         
         .highlight-emoji {
-            font-size: 2rem;
-            margin-bottom: 10px;
+            font-size: 3rem; /* 进一步增大表情符号尺寸 */
+            margin-bottom: 15px; /* 增加底部间距 */
+            position: relative;
+            z-index: 2;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            color: white;
+        }
+        
+        .highlight-item h3 {
+            position: relative;
+            z-index: 2;
+            color: white;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            margin: 0;
+            font-size: 1.4rem; /* 增大字号 */
+            font-weight: 600; /* 稍微加粗 */
         }
         
         .timeline {
@@ -366,6 +449,14 @@
             border-radius: 4px;
             margin-top: 5px;
             font-size: 0.9rem;
+            transition: background-color 0.3s, transform 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn:active {
+            transform: scale(0.95);
+            background: var(--secondary);
         }
         
         .tips {
@@ -416,6 +507,149 @@
             .day-card {
                 min-width: 260px;
             }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 25px 15px;
+                margin-bottom: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .header p {
+                font-size: 0.9rem;
+            }
+            
+            .resources {
+                grid-template-columns: 1fr;
+            }
+            
+            .highlights {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px; /* 移动设备上减小间距 */
+            }
+            
+            .highlight-item {
+                padding: 10px;
+            }
+            
+            .highlight-emoji {
+                font-size: 2rem; /* 移动设备上适当减小尺寸 */
+            }
+            
+            .highlight-item h3 {
+                font-size: 1rem;
+            }
+            
+            .schedule-day-header {
+                padding: 15px;
+            }
+            
+            .day-number {
+                width: 40px;
+                height: 40px;
+                font-size: 1.5rem;
+            }
+            
+            .activity-card {
+                padding: 12px;
+            }
+            
+            .schedule-sidebar {
+                margin-bottom: 15px;
+            }
+            
+            .btn {
+                display: block;
+                text-align: center;
+                margin-top: 8px;
+            }
+            
+            .highlight-item.with-bg {
+                min-height: 180px; /* 移动设备上稍微减小高度但仍保持较大 */
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .highlights {
+                grid-template-columns: 1fr;
+            }
+            
+            .route-map {
+                gap: 5px;
+            }
+            
+            .city {
+                padding: 5px 10px;
+                font-size: 0.85rem;
+            }
+            
+            .arrow {
+                font-size: 0.9rem;
+            }
+            
+            .activity-time {
+                font-size: 0.9rem;
+            }
+            
+            .day-header h3, .schedule-day-header h3 {
+                font-size: 1.1rem;
+            }
+            
+            .day-header p {
+                font-size: 0.85rem;
+            }
+            
+            .highlight-item.with-bg {
+                min-height: 160px; /* 小屏幕设备上仍保持较大尺寸 */
+            }
+            
+            .highlight-emoji {
+                font-size: 2rem;
+                margin-bottom: 10px;
+            }
+        }
+        
+        /* 新增触摸友好样式 */
+        .btn:active {
+            transform: scale(0.95);
+            background: var(--secondary);
+        }
+        
+        .schedule-day-header {
+            transition: background 0.3s;
+        }
+        
+        .activity-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .activity-card:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        /* 优化表单元素触摸体验 */
+        input, select, button {
+            font-size: 16px; /* 防止iOS自动缩放 */
+        }
+        
+        /* 可以为不同的卡片设置不同的样式 */
+        .highlight-item.with-bg:nth-child(2) .highlight-content {
+            background: rgba(0, 0, 0, 0.4); /* 为第二个卡片设置稍微深一点的背景 */
+        }
+        
+        .highlight-item.with-bg:nth-child(3) .highlight-content {
+            background: rgba(0, 0, 0, 0.35); /* 为第三个卡片设置中等不透明度 */
+        }
+        
+        .highlight-item.with-bg:nth-child(4) .highlight-content {
+            background: rgba(0, 0, 0, 0.45); /* 为第四个卡片设置更深的背景 */
         }
     </style>
 </head>
@@ -447,21 +681,33 @@
         <div class="overview-card">
             <h2>行程亮点</h2>
             <div class="highlights">
-                <div class="highlight-item">
-                    <div class="highlight-emoji">🚗</div>
-                    <h3>中朝边境自驾</h3>
+                <div class="highlight-item with-bg">
+                    <img src="images/img_1.jpg" alt="中朝边境自驾" class="highlight-bg-img">
+                    <div class="highlight-content">
+                        <div class="highlight-emoji">🚗</div>
+                        <h3>中朝边境自驾</h3>
+                    </div>
                 </div>
-                <div class="highlight-item">
-                    <div class="highlight-emoji">🏭</div>
-                    <h3>老工业遗址探秘</h3>
+                <div class="highlight-item with-bg">
+                    <img src="images/img_2.jpg" alt="老工业遗址探秘" class="highlight-bg-img">
+                    <div class="highlight-content">
+                        <div class="highlight-emoji">🏭</div>
+                        <h3>老工业遗址探秘</h3>
+                    </div>
                 </div>
-                <div class="highlight-item">
-                    <div class="highlight-emoji">🍲</div>
-                    <h3>朝鲜族美食体验</h3>
+                <div class="highlight-item with-bg">
+                    <img src="images/img_3.jpg" alt="朝鲜族美食体验" class="highlight-bg-img">
+                    <div class="highlight-content">
+                        <div class="highlight-emoji">🍲</div>
+                        <h3>朝鲜族美食体验</h3>
+                    </div>
                 </div>
-                <div class="highlight-item">
-                    <div class="highlight-emoji">🏛️</div>
-                    <h3>哈尔滨俄式风情</h3>
+                <div class="highlight-item with-bg">
+                    <img src="images/img_4.jpg" alt="哈尔滨俄式风情" class="highlight-bg-img">
+                    <div class="highlight-content">
+                        <div class="highlight-emoji">🏛️</div>
+                        <h3>哈尔滨俄式风情</h3>
+                    </div>
                 </div>
             </div>
             <p>预算参考：人均 <span class="price">4000-5000元</span>（含机票、租车、住宿、餐饮、门票）</p>
@@ -1132,6 +1378,34 @@
             checkOverflow();
             
             window.addEventListener('resize', checkOverflow);
+            
+            // 添加页面平滑滚动效果
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+            
+            // 添加图片懒加载
+            const lazyBackgrounds = [].slice.call(document.querySelectorAll(".header::before"));
+            
+            if ("IntersectionObserver" in window) {
+                let lazyBackgroundObserver = new IntersectionObserver(function(entries, observer) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add("visible");
+                            lazyBackgroundObserver.unobserve(entry.target);
+                        }
+                    });
+                });
+                
+                lazyBackgrounds.forEach(function(lazyBackground) {
+                    lazyBackgroundObserver.observe(lazyBackground);
+                });
+            }
         });
     </script>
 </body>
