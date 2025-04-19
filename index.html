@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>东北五日游 - 可视化行程</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --accent1: #e74c3c;
+            --accent2: #27ae60;
+            --accent3: #f39c12;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: #f5f7fa;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('https://images.unsplash.com/photo-1547706276-da514c3f4ad6?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.2;
+            z-index: 0;
+        }
+        
+        .header h1, .header p {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .route-map-container {
+            position: relative;
+            overflow-x: auto;
+            padding: 10px 5px;
+            margin: 20px 0 10px;
+            z-index: 1;
+        }
+        
+        .route-map {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            min-width: max-content;
+            padding: 0 15px;
+        }
+        
+        .city {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            font-weight: bold;
+            color: var(--secondary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            white-space: nowrap;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .city:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .arrow {
+            color: white;
+            font-size: 1.2rem;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        .scroll-indicator {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            display: none;
+        }
+        
+        .scroll-indicator::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 30%;
+            background: rgba(255,255,255,0.7);
+            border-radius: 3px;
+            animation: scrolling 2s infinite;
+        }
+        
+        @keyframes scrolling {
+            0% { left: -30%; }
+            100% { left: 100%; }
+        }
+        
+        .overview-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+        
+        .highlights {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .highlight-item {
+            background: var(--light);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .highlight-emoji {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .timeline {
+            display: flex;
+            overflow-x: auto;
+            gap: 20px;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        
+        .day-card {
+            min-width: 280px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .day-header {
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .day-card:nth-child(1) .day-header {
+            background: var(--primary);
+        }
+        
+        .day-card:nth-child(2) .day-header {
+            background: var(--accent2);
+        }
+        
+        .day-card:nth-child(3) .day-header {
+            background: var(--accent3);
+        }
+        
+        .day-card:nth-child(4) .day-header {
+            background: var(--accent1);
+        }
+        
+        .day-card:nth-child(5) .day-header {
+            background: var(--secondary);
+        }
+        
+        .day-content {
+            padding: 15px;
+        }
+        
+        .itinerary-item {
+            margin-bottom: 20px;
+        }
+        
+        .itinerary-time {
+            display: inline-block;
+            background: var(--light);
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--secondary);
+        }
+        
+        .price {
+            color: var(--accent1);
+            font-weight: bold;
+        }
+        
+        .detailed-schedule {
+            margin-top: 40px;
+        }
+        
+        .schedule-day {
+            margin-bottom: 40px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        
+        .schedule-day-header {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            background: var(--primary);
+            color: white;
+        }
+        
+        .schedule-day:nth-child(1) .schedule-day-header {
+            background: var(--primary);
+        }
+        
+        .schedule-day:nth-child(2) .schedule-day-header {
+            background: var(--accent2);
+        }
+        
+        .schedule-day:nth-child(3) .schedule-day-header {
+            background: var(--accent3);
+        }
+        
+        .schedule-day:nth-child(4) .schedule-day-header {
+            background: var(--accent1);
+        }
+        
+        .schedule-day:nth-child(5) .schedule-day-header {
+            background: var(--secondary);
+        }
+        
+        .day-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+        }
+        
+        .day-details {
+            flex-grow: 1;
+        }
+        
+        .schedule-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .schedule-sidebar {
+            background: var(--light);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .schedule-main {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .activity-card {
+            background: var(--light);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .activity-time {
+            font-weight: bold;
+            color: var(--secondary);
+            margin-bottom: 5px;
+        }
+        
+        .activity-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .resources {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .resource-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+        
+        .resource-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        
+        .resource-title .emoji {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .resource-item {
+            margin-bottom: 10px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .tips {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+        
+        .tips h3 {
+            color: #856404;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .tips ul {
+            margin-left: 20px;
+        }
+        
+        .emoji {
+            margin-right: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .scroll-indicator {
+                display: block;
+            }
+            
+            .city {
+                padding: 6px 12px;
+                font-size: 0.9rem;
+            }
+            
+            .schedule-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .timeline {
+                padding-bottom: 15px;
+            }
+            
+            .day-card {
+                min-width: 260px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>东北五日精华游</h1>
+            <p>4月29日 - 5月3日（5天4晚）</p>
+            <div class="route-map-container">
+                <div class="route-map">
+                    <span class="city">广州</span>
+                    <span class="arrow">→</span>
+                    <span class="city">大连</span>
+                    <span class="arrow">→</span>
+                    <span class="city">延吉</span>
+                    <span class="arrow">→</span>
+                    <span class="city">图们</span>
+                    <span class="arrow">→</span>
+                    <span class="city">珲春</span>
+                    <span class="arrow">→</span>
+                    <span class="city">哈尔滨</span>
+                    <span class="arrow">→</span>
+                    <span class="city">广州</span>
+                </div>
+                <div class="scroll-indicator"></div>
+            </div>
+        </div>
+        
+        <div class="overview-card">
+            <h2>行程亮点</h2>
+            <div class="highlights">
+                <div class="highlight-item">
+                    <div class="highlight-emoji">🚗</div>
+                    <h3>中朝边境自驾</h3>
+                </div>
+                <div class="highlight-item">
+                    <div class="highlight-emoji">🏭</div>
+                    <h3>老工业遗址探秘</h3>
+                </div>
+                <div class="highlight-item">
+                    <div class="highlight-emoji">🍲</div>
+                    <h3>朝鲜族美食体验</h3>
+                </div>
+                <div class="highlight-item">
+                    <div class="highlight-emoji">🏛️</div>
+                    <h3>哈尔滨俄式风情</h3>
+                </div>
+            </div>
+            <p>预算参考：人均 <span class="price">4000-5000元</span>（含机票、租车、住宿、餐饮、门票）</p>
+        </div>
+        
+        <h2>行程概览</h2>
+        <div class="timeline">
+            <div class="day-card">
+                <div class="day-header">
+                    <h3>Day 1（4月29日）</h3>
+                    <p>广州 → 大连</p>
+                </div>
+                <div class="day-content">
+                    <div class="itinerary-item">
+                        <span class="itinerary-time">08:00-13:30</span>
+                        <p>南航 CZ6234 飞往大连</p>
+                    </div>
+                    <div class="itinerary-item">
+                        <span class="itinerary-time">下午</span>
+                        <p>俄罗斯风情街 → 星海广场</p>
+                    </div>
+                    <div class="itinerary-item">
+                        <span class="itinerary-time">晚上</span>
+                        <p>火车头不老饭庄品尝东北美食</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="day-card">
+                <div class="day-header">
+                    <h3>Day 2（4月30日）</h3>
+                    <p>大连 → 延吉</p>
+                </div>
+                <div class="day-content">
+                    <div class="itinerary-item">
+                        <span class="itinerary-time">上午</span>
+                        <p>冰山慧谷工业遗址探秘</p>
+                    </div>
+                    <div class="itinerary-item">
+                        <span class="itinerary-time">16:26-次日12:38</span>
+                        <p>K7333次列车前往延吉</p>
+                    </div>
+                    <div class="itinerary-item">
+                        <span class="itinerary-time">下午</span>
+                        <p>延边大学网红墙 → 民俗园</p>
+                    </div>
+                    <div class="itinerary-item">
+                        <span class="itinerary-time">晚上</span>
+                        <p>全州拌饭馆 → 大学城夜市</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="day-card">
+                <div class="day-header">
+                    <h3>Day 3（5月1日）</h3>
+                    <p>延吉 → 图们 → 珲春</p>
+                </div>
+                <div class="day-content">
+                    <div class="itinerary-item">
+                        <span class="itinerary-time">上午</span>
+                        <p>延吉→图们江公园(1h)</p>
+                    </div>
+                    <div class="itinerary-item">
+                        <span class="itinerary-time">中午</span>
+                        <p>日光山森林公园(0.5h)</p>
+                    </div>
+                    <div class="itinerary-item">
+                        <span class="itinerary-time">下午</span>
+                        <p>珲春防川景区(1.5h)</p>
+                    </div>
+                    <div class="itinerary-item">
+                        <span class="itinerary-time">晚上</span>
+                        <p>珲春海鲜市场</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="day-card">
+                <div class="day-header">
+                    <h3>Day 4（5月2日）</h3>
+                    <p>珲春 → 哈尔滨</p>
+                </div>
+                <div class="day-content">
+                    <div class="itinerary-item">
+                        <span class="itinerary-time">上午</span>
+                        <p>珲春返回延吉还车</p>
+                    </div>
+                    <div class="itinerary-item">
+                        <span class="itinerary-time">14:53-18:34</span>
+                        <p>高铁前往哈尔滨</p>
+                    </div>
+                    <div class="itinerary-item">
+                        <span class="itinerary-time">晚上</span>
+                        <p>中央大街→圣索菲亚教堂</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="day-card">
+                <div class="day-header">
+                    <h3>Day 5（5月3日）</h3>
+                    <p>哈尔滨 → 广州</p>
+                </div>
+                <div class="day-content">
+                    <div class="itinerary-item">
+                        <span class="itinerary-time">上午</span>
+                        <p>西城红场→老道外中华巴洛克</p>
+                    </div>
+                    <div class="itinerary-item">
+                        <span class="itinerary-time">下午</span>
+                        <p>太阳岛→松花江铁路大桥</p>
+                    </div>
+                    <div class="itinerary-item">
+                        <span class="itinerary-time">20:00-00:30+1</span>
+                        <p>CZ6233返回广州</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="detailed-schedule">
+            <h2>每日详细行程</h2>
+            
+            <!-- Day 1 -->
+            <div class="schedule-day">
+                <div class="schedule-day-header">
+                    <div class="day-number">1</div>
+                    <div class="day-details">
+                        <h3>Day 1（4月29日）：广州 → 大连</h3>
+                    </div>
+                </div>
+                <div class="schedule-content">
+                    <div class="schedule-sidebar">
+                        <div class="sidebar-section">
+                            <h4><span class="emoji">✈️</span>交通</h4>
+                            <p>南航 CZ6234</p>
+                            <p>08:00-13:30</p>
+                            <p>白云T1 → 周水子机场</p>
+                            <p class="price">¥1700/人</p>
+                        </div>
+                        <div class="sidebar-section">
+                            <h4><span class="emoji">🏨</span>住宿</h4>
+                            <p>大连中山希尔顿欢朋酒店</p>
+                            <p>近中山广场，步行10分钟至俄罗斯风情街</p>
+                            <p class="price">¥280/晚</p>
+                        </div>
+                        <div class="sidebar-section">
+                            <h4><span class="emoji">🏭</span>后工业体验</h4>
+                            <p>次日上午：冰山慧谷</p>
+                            <p>原冰山集团老厂区改造</p>
+                            <p>地铁1号线富国街站直达</p>
+                            <p>免费开放</p>
+                        </div>
+                    </div>
+                    <div class="schedule-main">
+                        <div class="activity-card">
+                            <div class="activity-time">08:00-13:30</div>
+                            <div class="activity-title">广州飞往大连</div>
+                            <p>南航CZ6234，白云T1航站楼出发</p>
+                            <p>抵达周水子机场</p>
+                        </div>
+                        <div class="activity-card">
+                            <div class="activity-time">14:00-14:30</div>
+                            <div class="activity-title">抵达酒店办理入住</div>
+                            <p>大连中山希尔顿欢朋酒店</p>
+                            <p>地理位置优越，靠近中山广场</p>
+                        </div>
+                        <div class="activity-card">
+                            <div class="activity-time">15:00-17:30</div>
+                            <div class="activity-title">游览俄罗斯风情街</div>
+                            <p>欣赏独特的俄式建筑风格</p>
+                            <p>探访特色手工艺品店，拍照打卡</p>
+                            <p>体验浓郁的异域风情</p>
+                            <a href="https://www.xiaohongshu.com/discovery/item/67b87eff000000000900e48c?source=webshare&xhsshare=pc_web&xsec_token=ABQ88bQfK5KgtRBYo92vC2M8Z3gTZdB6SyBmrHdAGreRA=&xsec_source=pc_share" target="_blank" class="btn">18张打卡美图攻略</a>
+                        </div>
+                        <div class="activity-card">
+                            <div class="activity-time">17:30-19:00</div>
+                            <div class="activity-title">星海广场夜景</div>
+                            <p>亚洲最大城市广场</p>
+                            <p>欣赏壮观的夜景灯光秀</p>
+                            <p>感受大连现代城市魅力</p>
+                            <a href="https://www.xiaohongshu.com/discovery/item/678a73ac0000000018034830?source=webshare&xhsshare=pc_web&xsec_token=ABoAmUzeDgXg_6b5SoVgJR94ffaQe4P2ybN73A_F9eHLo=&xsec_source=pc_share" target="_blank" class="btn">海边城市lalaland美景</a>
+                        </div>
+                        <div class="activity-card">
+                            <div class="activity-time">19:30-21:00</div>
+                            <div class="activity-title">晚餐：火车头不老饭庄</div>
+                            <p>推荐：电烤翅和红烧肉</p>
+                            <p>搭配正宗大连啤酒</p>
+                            <p>地址：大连站店（建议提前预订）</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Day 2 -->
+            <div class="schedule-day">
+                <div class="schedule-day-header">
+                    <div class="day-number">2</div>
+                    <div class="day-details">
+                        <h3>Day 2（4月30日）：大连 → 延吉</h3>
+                    </div>
+                </div>
+                <div class="schedule-content">
+                    <div class="schedule-sidebar">
+                        <div class="sidebar-section">
+                            <h4><span class="emoji">🚂</span>交通</h4>
+                            <p>K7333次列车</p>
+                            <p>16:26-次日12:38</p>
+                            <p>大连站 → 延吉站</p>
+                            <p class="price">¥272.5/人(硬卧)</p>
+                        </div>
+                        <div class="sidebar-section">
+                            <h4><span class="emoji">🚗</span>租车</h4>
+                            <p>神州租车自动挡经济型</p>
+                            <p>延吉站附近取车</p>
+                            <p class="price">¥180/天（含全险）</p>
+                            <p>异地还车费：<span class="price">¥70</span></p>
+                        </div>
+                        <div class="sidebar-section">
+                            <h4><span class="emoji">🏨</span>住宿</h4>
+                            <p>柏澜・智能精选酒店</p>
+                            <p>延边大学网红墙店</p>
+                            <p>近水上市场和大学城</p>
+                            <p class="price">¥210/晚</p>
+                        </div>
+                    </div>
+                    <div class="schedule-main">
+                        <div class="activity-card">
+                            <div class="activity-time">09:00-11:30</div>
+                            <div class="activity-title">冰山慧谷</div>
+                            <p>原冰山集团老厂区改造，免费开放</p>
+                            <p>地铁1号线富国街站直达</p>
+                            <p>参观工业遗址与文创园区</p>
+                            <a href="https://www.xiaohongshu.com/discovery/item/6653de450000000005005e74?source=webshare&xhsshare=pc_web&xsec_token=ABYByKgmyqx06NzBdH3HuwbpsYW4lDzy2Jz2-k95CLbPE=&xsec_source=pc_share" target="_blank" class="btn">解锁工业革命密码！夏日秘境</a>
+                        </div>
+                        <div class="activity-card">
+                            <div class="activity-time">12:00-14:00</div>
+                            <div class="activity-title">返回酒店取行李，午餐</div>
+                            <p>推荐在中山广场附近用餐</p>
+                            <p>品尝大连海鲜或饺子</p>
+                        </div>
+                        <div class="activity-card">
+                            <div class="activity-time">14:30-16:00</div>
+                            <div class="activity-title">延边大学网红墙</div>
+                            <p>双语招牌打卡</p>
+                            <p>感受朝鲜族大学文化氛围</p>
+                            <a href="https://www.xiaohongshu.com/discovery/item/67b572850000000029034c53?source=webshare&xhsshare=pc_web&xsec_token=ABQAW8reFbJB77kxL29yOTIBREEWEYrNoonPxNfGbTT-o=&xsec_source=pc_share" target="_blank" class="btn">镜头里的韩国江南</a>
+                        </div>
+                        <div class="activity-card">
+                            <div class="activity-time">16:00-18:00</div>
+                            <div class="activity-title">朝鲜族民俗园</div>
+                            <p>租传统服饰拍照，价格约<span class="price">¥100/套</span></p>
+                            <p>了解朝鲜族传统文化</p>
+                            <a href="https://www.xiaohongshu.com/discovery/item/67c69eab000000002901458f?source=webshare&xhsshare=pc_web&xsec_token=AB0JcKMZExXXcXJIA0PCYCJQw8tf2oOaoVpeYRwyS1IbE=&xsec_source=pc_share" target="_blank" class="btn">延吉不止民俗园攻略</a>
+                        </div>
+                        <div class="activity-card">
+                            <div class="activity-time">18:30-20:00</div>
+                            <div class="activity-title">晚餐：全州拌饭馆</div>
+                            <p>推荐：石锅拌饭和辣白菜</p>
+                            <p>地址：总店</p>
+                        </div>
+                        <div class="activity-card">
+                            <div class="activity-time">20:00-21:30</div>
+                            <div class="activity-title">大学城夜市</div>
+                            <p>尝试朝鲜族特色小吃</p>
+                            <p>推荐：打糕、冷面</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Day 3 -->
+            <div class="schedule-day">
+                <div class="schedule-day-header">
+                    <div class="day-number">3</div>
+                    <div class="day-details">
+                        <h3>Day 3（5月1日）：延吉 → 图们 → 珲春（自驾 120km/2.5h）</h3>
+                    </div>
+                </div>
+                <div class="schedule-content">
+                    <div class="schedule-sidebar">
+                        <div class="sidebar-section">
+                            <h4><span class="emoji">🚗</span>自驾路线</h4>
+                            <p>延吉 → 图们江公园(1h) → 日光山(0.5h) → 珲春防川景区(1.5h)</p>
+                            <p>总距离：约120公里</p>
+                            <p>行驶时间：约2.5小时</p>
+                        </div>
+                        <div class="sidebar-section">
+                            <h4><span class="emoji">🏨</span>住宿</h4>
+                            <p>全季酒店（珲春店）</p>
+                            <p>地理位置：近欧式街和世纪广场</p>
+                            <p class="price">¥280/晚</p>
+                        </div>
+                        <div class="sidebar-section">
+                            <h4><span class="emoji">🍲</span>美食推荐</h4>
+                            <p>玉善烧烤城：珲春特色烤串，推荐月牙骨和板筋</p>
+                            <p>珲春海鲜市场：现捞帝王蟹、扇贝，加工费<span class="price">¥10/斤</span></p>
+                        </div>
+                    </div>
+                    <div class="schedule-main">
+                        <div class="activity-card">
+                            <div class="activity-time">08:00-09:00</div>
+                            <div class="activity-title">从延吉出发前往图们</div>
+                            <p>自驾路线：延吉市区 → 图们市</p>
+                            <p>距离约50公里，行程约1小时</p>
+                            <a href="https://www.xiaohongshu.com/discovery/item/66e145bd000000000c018a64?source=webshare&xhsshare=pc_web&xsec_token=AB-gkkiJ-C9qtBgCc45_FfZ88NKPvGFsqw9oyid57d0d8=&xsec_source=pc_share" target="_blank" class="btn">延边7日自驾避暑攻略</a>
+                        </div>
+                        <div class="activity-card">
+                            <div class="activity-time">09:00-10:30</div>
+                            <div class="activity-title">图们江公园</div>
+                            <p>中朝边境地带</p>
+                            <p>近距离观察朝鲜南阳郡</p>
+                            <p>体验边境城市独特氛围</p>
+                            <a href="https://www.xiaohongshu.com/discovery/item/6772b4760000000013000af7?source=webshare&xhsshare=pc_web&xsec_token=ABpAzEhiZTd-ufX717wCVKTgmE9Ywy92s2AhB0RTnJd8k=&xsec_source=pc_share" target="_blank" class="btn">看完立省145元的图们攻略</a>
+                        </div>
+                        <div class="activity-card">
+                            <div class="activity-time">10:30-12:00</div>
+                            <div class="activity-title">日光山森林公园</div>
+                            <p>俯瞰图们江全景</p>
+                            <p>探访废弃铁路遗址（后工业时代景观）</p>
+                            <p>拍摄边境特色照片</p>
+                            <a href="https://www.xiaohongshu.com/discovery/item/6703b7c7000000002c02edcb?source=webshare&xhsshare=pc_web&xsec_token=ABY5d0M4iBWIDMSxB8x0oqc1Ymywv5gdw7bxlH-9-YcwM=&xsec_source=pc_share" target="_blank" class="btn">图们最值得去的地方</a>
+                        </div>
+                        <div class="activity-card">
+                            <div class="activity-time">12:00-13:00</div>
+                            <div class="activity-title">午餐</div>
+                            <p>图们当地特色餐厅</p>
+                            <p>品尝朝鲜族风味美食</p>
+                        </div>
+                        <div class="activity-card">
+                            <div class="activity-time">13:00-14:30</div>
+                            <div class="activity-title">前往珲春</div>
+                            <p>自驾路线：图们 → 珲春</p>
+                            <p>距离约70公里，行程约1.5小时</p>
+                        </div>
+                        <div class="activity-card">
+                            <div class="activity-time">14:30-17:00</div>
+                            <div class="activity-title">防川景区</div>
+                            <p>"一眼望三国"（中俄朝交界处）</p>
+                            <p>登龙虎阁远眺日本海</p>
+                            <p>门票：<span class="price">¥70/人</span>，开放时间8:30-16:30</p>
+                            <p>记得携带身份证</p>
+                            <a href="https://www.xiaohongshu.com/discovery/item/663fa86a000000001e036041?source=webshare&xhsshare=pc_web&xsec_token=ABVE1FlTIxllc5AUZ50lktOg-W0lPI8et0NkBtsgqIBzg=&xsec_source=pc_share" target="_blank" class="btn">影子和定位已出国的奇妙体验</a>
+                        </div>
+                        <div class="activity-card">
+                            <div class="activity-time">17:30-18:30</div>
+                            <div class="activity-title">入住酒店</div>
+                            <p>全季酒店（珲春店）</p>
+                            <p>位置优越，近欧式街和世纪广场</p>
+                        </div>
+                        <div class="activity-card">
+                            <div class="activity-time">19:00-21:00</div>
+                            <div class="activity-title">晚餐：珲春海鲜市场</div>
+                            <p>挑选新鲜海鲜：帝王蟹、扇贝等</p>
+                            <p>周边餐馆加工，加工费<span class="price">¥10/斤</span></p>
+                            <p>体验边境城市的海鲜饕餮盛宴</p>
+                            <a href="https://www.xiaohongshu.com/discovery/item/66922db9000000002500204a?source=webshare&xhsshare=pc_web&xsec_token=ABextnlncfC0VFZJ3wQI-Mo-HPaIYeiW0z3nuI1SDx294=&xsec_source=pc_share" target="_blank" class="btn">最新珲春海鲜攻略</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Day 4 -->
+            <div class="schedule-day">
+                <div class="schedule-day-header">
+                    <div class="day-number">4</div>
+                    <div class="day-details">
+                        <h3>Day 4（5月2日）：珲春 → 哈尔滨（自驾 + 高铁）</h3>
+                    </div>
+                </div>
+                <div class="schedule-content">
+                    <div class="schedule-sidebar">
+                        <div class="sidebar-section">
+                            <h4><span class="emoji">🚗</span>自驾返程</h4>
+                            <p>珲春 → 延吉</p>
+                            <p>距离：约140公里</p>
+                            <p>行驶时间：约2小时</p>
+                            <p>在延吉归还租车</p>
+                        </div>
+                        <div class="sidebar-section">
+                            <h4><span class="emoji">🚄</span>高铁</h4>
+                            <p>延吉 → 哈尔滨</p>
+                            <p>D514次：14:53-18:34</p>
+                            <p>二等座<span class="price">¥198/人</span></p>
+                        </div>
+                        <div class="sidebar-section">
+                            <h4><span class="emoji">🏨</span>住宿</h4>
+                            <p>哈尔滨市区酒店</p>
+                            <p>建议选择中央大街附近</p>
+                            <p class="price">¥250-350/晚</p>
+                        </div>
+                        <div class="sidebar-section">
+                            <h4><span class="emoji">⚠️</span>备选方案</h4>
+                            <p>若时间紧张：</p>
+                            <p>珲春 → 哈尔滨</p>
+                            <p>祥鹏航空 8L9638</p>
+                            <p>16:25-17:50</p>
+                            <p class="price">¥800/人</p>
+                        </div>
+                    </div>
+                    <div class="schedule-main">
+                        <div class="activity-card">
+                            <div class="activity-time">08:00-10:00</div>
+                            <div class="activity-title">从珲春出发返回延吉</div>
+                            <p>自驾返程，距离约140公里</p>
+                            <p>行程约2小时</p>
+                            <p>沿途欣赏延边朝鲜族自治州风光</p>
+                        </div>
+                        <div class="activity-card">
+                            <div class="activity-time">10:00-11:00</div>
+                            <div class="activity-title">归还租车</div>
+                            <p>在延吉神州租车网点还车</p>
+                            <p>支付异地还车费<span class="price">¥70</span></p>
+                            <p>整理行李，准备搭乘高铁</p>
+                        </div>
+                        <div class="activity-card">
+                            <div class="activity-time">11:30-13:00</div>
+                            <div class="activity-title">延吉市区午餐</div>
+                            <p>行前用餐，补充能量</p>
+                            <p>可品尝朝鲜族特色美食作为此行告别</p>
+                        </div>
+                        <div class="activity-card">
+                            <div class="activity-time">14:53-18:34</div>
+                            <div class="activity-title">高铁前往哈尔滨</div>
+                            <p>乘坐D514次列车</p>
+                            <p>二等座<span class="price">¥198/人</span></p>
+                            <p>整理旅途照片，回顾边境之旅</p>
+                        </div>
+                        <div class="activity-card">
+                            <div class="activity-time">19:00-20:30</div>
+                            <div class="activity-title">中央大街与圣索菲亚教堂</div>
+                            <p>漫步哈尔滨标志性步行街</p>
+                            <p>欣赏俄式建筑风格</p>
+                            <p>品尝马迭尔冰棍</p>
+                            <p>欣赏教堂夜景灯光秀</p>
+                            <a href="https://www.xiaohongshu.com/discovery/item/6788c25e000000001803f399?source=webshare&xhsshare=pc_web&xsec_token=ABNzynZ-8jFMmqhIsJV_aswBFFlEcHi6lyqfrI2iv1Od8=&xsec_source=pc_share" target="_blank" class="btn">用哈利波特的方式打开哈尔滨</a>
+                        </div>
+                        <div class="activity-card">
+                            <div class="activity-time">20:30-22:00</div>
+                            <div class="activity-title">晚餐：老仁义馆</div>
+                            <p>品尝哈尔滨传统美食</p>
+                            <p>推荐：锅包肉和熏鸡</p>
+                            <p>搭配哈尔滨啤酒</p>
+                            <p>地址：道外店</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Day 5 -->
+            <div class="schedule-day">
+                <div class="schedule-day-header">
+                    <div class="day-number">5</div>
+                    <div class="day-details">
+                        <h3>Day 5（5月3日）：哈尔滨深度游 → 广州</h3>
+                    </div>
+                </div>
+                <div class="schedule-content">
+                    <div class="schedule-sidebar">
+                        <div class="sidebar-section">
+                            <h4><span class="emoji">🏭</span>工业遗址</h4>
+                            <p>哈尔滨西城红场</p>
+                            <p>原机联机械厂改造</p>
+                            <p>免费开放</p>
+                            <p>开放时间：8:30-21:30</p>
+                        </div>
+                        <div class="sidebar-section">
+                            <h4><span class="emoji">🏞️</span>景点门票</h4>
+                            <p>太阳岛风景区</p>
+                            <p class="price">¥30/人</p>
+                        </div>
+                        <div class="sidebar-section">
+                            <h4><span class="emoji">✈️</span>返程航班</h4>
+                            <p>南航 CZ6233</p>
+                            <p>20:00-00:30+1</p>
+                            <p>太平T2 → 白云T1</p>
+                            <p class="price">¥1700/人</p>
+                        </div>
+                    </div>
+                    <div class="schedule-main">
+                        <div class="activity-card">
+                            <div class="activity-time">08:30-10:30</div>
+                            <div class="activity-title">哈尔滨西城红场</div>
+                            <p>原机联机械厂改造，工业遗址与文创结合</p>
+                            <p>免费开放，开放时间8:30-21:30</p>
+                            <p>体验老工业基地的文化创新转型</p>
+                            <a href="https://www.xiaohongshu.com/discovery/item/664fdd260000000005005c0d?source=webshare&xhsshare=pc_web&xsec_token=ABQQ6q-Fgdbosp85hJA0uXC4tRp-l4c42d7m_VPLS3cdc=&xsec_source=pc_share" target="_blank" class="btn">西城红场美术馆三展连开</a>
+                        </div>
+                        <div class="activity-card">
+                            <div class="activity-time">10:30-12:30</div>
+                            <div class="activity-title">老道外中华巴洛克</div>
+                            <p>百年历史街区，欧亚混合建筑风格</p>
+                            <p>体验传统东北小吃：</p>
+                            <p>- 张包铺排骨包子</p>
+                            <p>- 老街砂锅居</p>
+                            <a href="https://www.xiaohongshu.com/discovery/item/677366fa0000000009017614?source=webshare&xhsshare=pc_web&xsec_token=ABprR4VHJ_ZZSTzeWsD8iYh5nJF6uHPL4tB5RX6LMOSH0=&xsec_source=pc_share" target="_blank" class="btn">中华巴洛克超全攻略</a>
+                        </div>
+                        <div class="activity-card">
+                            <div class="activity-time">13:00-15:00</div>
+                            <div class="activity-title">太阳岛风景区</div>
+                            <p>春季踏青，绿草如茵</p>
+                            <p>参观俄罗斯风情小镇</p>
+                            <p>门票：<span class="price">¥30/人</span></p>
+                            <a href="https://www.xiaohongshu.com/discovery/item/67886011000000001b00be11?source=webshare&xhsshare=pc_web&xsec_token=ABNzynZ-8jFMmqhIsJV_aswIjEmfJlCfqp0TJ54LM0NMo=&xsec_source=pc_share" target="_blank" class="btn">太阳岛冬日俄式小木屋</a>
+                        </div>
+                        <div class="activity-card">
+                            <div class="activity-time">15:30-17:00</div>
+                            <div class="activity-title">松花江铁路大桥与斯大林公园</div>
+                            <p>拍摄城市全景</p>
+                            <p>步行至斯大林公园，体验冰城文化</p>
+                            <a href="https://www.xiaohongshu.com/discovery/item/6471589c0000000013036bee?source=webshare&xhsshare=pc_web&xsec_token=ABrJI1BlaVHYWnzcqfqQys3bYkR6Y3BeyvAqIQSjSpVBc=&xsec_source=pc_share" target="_blank" class="btn">晴好天气的斯大林公园美景</a>
+                        </div>
+                        <div class="activity-card">
+                            <div class="activity-time">17:00-18:30</div>
+                            <div class="activity-title">防洪纪念塔与中央大街夜市</div>
+                            <p>夜景灯光秀，沿江散步</p>
+                            <p>尝红肠、格瓦斯，购买俄罗斯特产</p>
+                            <a href="https://www.xiaohongshu.com/discovery/item/67189877000000001b0138c2?source=webshare&xhsshare=pc_web&xsec_token=ABsoJ5R6nsCmnZF84CMCxSUxdWf4PvLCIXQZ82xMzjdHI=&xsec_source=pc_share" target="_blank" class="btn">午后的防洪纪念塔</a>
+                        </div>
+                        <div class="activity-card">
+                            <div class="activity-time">18:30-19:30</div>
+                            <div class="activity-title">整理行李，前往机场</div>
+                            <p>从市区前往哈尔滨太平国际机场</p>
+                            <p>建议提前2小时到机场办理登机</p>
+                        </div>
+                        <div class="activity-card">
+                            <div class="activity-time">20:00-00:30+1</div>
+                            <div class="activity-title">飞往广州</div>
+                            <p>乘坐南航CZ6233航班</p>
+                            <p>从太平机场T2航站楼起飞</p>
+                            <p>抵达白云机场T1航站楼</p>
+                            <p>东北五日游圆满结束</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="resources">
+            <div class="resource-card">
+                <h3 class="resource-title"><span class="emoji">✈️</span>机票预订</h3>
+                <div class="resource-item">
+                    <p>广州⇌大连：南航 CZ6234</p>
+                    <a href="https://m.ctrip.com/html5/flight/CAN-DLC-day-1.html" target="_blank" class="btn">携程预订</a>
+                </div>
+                <div class="resource-item">
+                    <p>哈尔滨⇌广州：南航 CZ6233</p>
+                    <a href="https://m.ctrip.com/html5/flight/CAN-DLC-day-1.html" target="_blank" class="btn">携程预订</a>
+                </div>
+            </div>
+            
+            <div class="resource-card">
+                <h3 class="resource-title"><span class="emoji">🚄</span>高铁预订</h3>
+                <div class="resource-item">
+                    <p>延吉⇌哈尔滨：D514次</p>
+                    <p>14:53-18:34，二等座<span class="price">¥198/人</span></p>
+                    <a href="https://trains.ctrip.com/trainbooking/yanji3-haerbinxi/" target="_blank" class="btn">携程火车票预订</a>
+                </div>
+            </div>
+            
+            <div class="resource-card">
+                <h3 class="resource-title"><span class="emoji">🏨</span>酒店预订</h3>
+                <div class="resource-item">
+                    <p>大连：中山希尔顿欢朋酒店</p>
+                    <a href="https://m.ctrip.com/webapp/hotel/dalian6/sl10182184" target="_blank" class="btn">预订链接</a>
+                </div>
+                <div class="resource-item">
+                    <p>延吉：柏澜・智能精选酒店</p>
+                    <a href="https://m.ctrip.com/webapp/hotel/yanji523/sl11439661star2?seoRedirect=1" target="_blank" class="btn">预订链接</a>
+                </div>
+                <div class="resource-item">
+                    <p>珲春：全季酒店</p>
+                    <a href="https://m.ctrip.com/webapp/hotel/hunchun4137/sl9705494star3" target="_blank" class="btn">预订链接</a>
+                </div>
+                <div class="resource-item">
+                    <p>哈尔滨：诗酒年华酒店</p>
+                    <a href="https://m.ctrip.com/webapp/hotels/hotelsearch/list?city=4137&atime=2025-04-20&days=1&star=3&xTaroDPFlag=1&dplinktracelogid=e164d451fe9a6384db91dbbcbcda436a" target="_blank" class="btn">预订链接</a>
+                </div>
+            </div>
+            
+            <div class="resource-card">
+                <h3 class="resource-title"><span class="emoji">🚗</span>租车服务</h3>
+                <div class="resource-item">
+                    <p>延吉站附近取车</p>
+                    <p>推荐神州租车自动挡经济型</p>
+                    <p><span class="price">¥180/天含全险</span></p>
+                    <a href="https://www.zuche.com/" target="_blank" class="btn">神州租车官网</a>
+                </div>
+            </div>
+            
+            <div class="resource-card">
+                <h3 class="resource-title"><span class="emoji">🚂</span>火车预订</h3>
+                <div class="resource-item">
+                    <p>大连⇌延吉：K7333次</p>
+                    <p>16:26-次日12:38，硬卧<span class="price">¥272.5/人</span></p>
+                    <a href="https://trains.ctrip.com/trainbooking/yanji3-haerbinxi/" target="_blank" class="btn">12306预订</a>
+                </div>
+            </div>
+            
+            <div class="resource-card">
+                <h3 class="resource-title"><span class="emoji">🍲</span>美食推荐</h3>
+                <div class="resource-item">
+                    <p>大连火车头不老饭庄</p>
+                    <p>推荐：电烤翅和红烧肉</p>
+                    <a href="https://www.xiaohongshu.com/search/%E7%81%AB%E8%BD%A6%E5%A4%B4%E4%B8%8D%E8%80%81%E9%A5%AD%E5%BA%84" target="_blank" class="btn">小红书攻略</a>
+                </div>
+                <div class="resource-item">
+                    <p>哈尔滨老仁义馆</p>
+                    <p>推荐：锅包肉和熏鸡</p>
+                    <a href="https://ditu.amap.com/search?query=%E8%80%81%E4%BB%81%E4%B9%89%E9%A6%86" target="_blank" class="btn">高德导航</a>
+                </div>
+                <div class="resource-item">
+                    <p>珲春玉善烧烤城</p>
+                    <p>推荐：月牙骨和板筋</p>
+                    <a href="https://m.ctrip.com/webapp/travel/restaurant/hunchun4137/525553" target="_blank" class="btn">携程餐厅</a>
+                </div>
+            </div>
+            
+            <div class="resource-card">
+                <h3 class="resource-title"><span class="emoji">📱</span>小红书推荐合集</h3>
+                <div class="resource-item">
+                    <p>东北五日游精华路线</p>
+                    <a href="https://www.xiaohongshu.com/search/%E4%B8%9C%E5%8C%97%E8%87%AA%E9%A9%BE%E6%B8%B8" target="_blank" class="btn">攻略合集</a>
+                </div>
+                <div class="resource-item">
+                    <p>朝鲜族美食打卡</p>
+                    <a href="https://www.xiaohongshu.com/search/%E6%9C%9D%E9%B2%9C%E6%97%8F%E7%BE%8E%E9%A3%9F" target="_blank" class="btn">美食攻略</a>
+                </div>
+                <div class="resource-item">
+                    <p>哈尔滨一日游</p>
+                    <a href="https://www.xiaohongshu.com/search/%E5%93%88%E5%B0%94%E6%BB%A8%E4%B8%80%E6%97%A5%E6%B8%B8" target="_blank" class="btn">攻略合集</a>
+                </div>
+                <div class="resource-item">
+                    <p>防川一眼望三国攻略</p>
+                    <a href="https://www.xiaohongshu.com/search/%E9%98%B2%E5%B7%9D%E4%B8%80%E7%9C%BC%E6%9C%9B%E4%B8%89%E5%9B%BD" target="_blank" class="btn">攻略合集</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tips">
+            <h3><span class="emoji">⚠️</span>注意事项</h3>
+            <ul>
+                <li>五一期间机票/高铁票紧张，建议立即预订</li>
+                <li>自驾需检查车辆保险，山区路段谨慎驾驶（长白山段多弯道）</li>
+                <li>延吉、珲春酒店建议选择含早餐的，节省时间</li>
+                <li>防川景区门票¥70/人，需携带身份证</li>
+                <li>冰山慧谷、图们废弃铁路、珲春老龙口水利枢纽均无需门票，适合摄影</li>
+                <li>朝鲜族美食偏酸辣，可搭配冷面或米酒解腻；东北菜分量较大，建议2-3人点2菜1汤</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const routeMapContainer = document.querySelector('.route-map-container');
+            const routeMap = document.querySelector('.route-map');
+            const scrollIndicator = document.querySelector('.scroll-indicator');
+            
+            function checkOverflow() {
+                if (routeMap.scrollWidth > routeMapContainer.clientWidth) {
+                    scrollIndicator.style.display = 'block';
+                } else {
+                    scrollIndicator.style.display = 'none';
+                }
+            }
+            
+            checkOverflow();
+            
+            window.addEventListener('resize', checkOverflow);
+        });
+    </script>
+</body>
+</html>
